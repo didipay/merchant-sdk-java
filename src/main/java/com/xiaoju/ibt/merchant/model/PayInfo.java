@@ -19,6 +19,7 @@ public class PayInfo {
     private String timeExpire;
     private String merchantData;
     private String fromType;
+    private String extKv;
     private String goodsDetail;
     private String payer;
     private String returnUrl;
@@ -125,6 +126,14 @@ public class PayInfo {
 
     public void setFromType(String fromType) {
         this.fromType = fromType;
+    }
+
+    public String getExtKv() {
+        return extKv;
+    }
+
+    public void setExtKv(String extKv) {
+        this.extKv = extKv;
     }
 
     public String getGoodsDetail() {

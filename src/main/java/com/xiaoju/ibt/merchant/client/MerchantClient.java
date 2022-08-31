@@ -88,6 +88,9 @@ public class MerchantClient {
         if (!Objects.isNull(payInfo.getFromType())) {
             jsonObject.put(GatewayConstants.FROM_TYPE, payInfo.getFromType());
         }
+        if (!Objects.isNull(payInfo.getExtKv())) {
+            jsonObject.put(GatewayConstants.EXT_KV, payInfo.getExtKv());
+        }
         if (!Objects.isNull(payInfo.getGoodsDetail())) {
             jsonObject.put(GatewayConstants.GOODS_DETAIL, payInfo.getGoodsDetail());
         }
