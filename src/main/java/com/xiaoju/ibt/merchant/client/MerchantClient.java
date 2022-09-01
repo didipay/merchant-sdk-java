@@ -1,18 +1,19 @@
 package com.xiaoju.ibt.merchant.client;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xiaoju.ibt.merchant.constants.GatewayConstants;
 import com.xiaoju.ibt.merchant.exception.PayException;
 import com.xiaoju.ibt.merchant.http.HttpClient;
-import com.xiaoju.ibt.merchant.model.PayInfo;
+import com.xiaoju.ibt.merchant.model.PayParameter;
 import com.xiaoju.ibt.merchant.model.ResponseInfo;
 import com.xiaoju.ibt.merchant.util.JsonUtil;
 import com.xiaoju.ibt.merchant.util.SignUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.xiaoju.ibt.merchant.util.StringUtils;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import static com.xiaoju.ibt.merchant.constants.Constants.*;
 import static com.xiaoju.ibt.merchant.constants.GatewayConstants.CONNECT_TIME_OUT;
 import static com.xiaoju.ibt.merchant.constants.GatewayConstants.READ_TIME_OUT;
 
@@ -22,29 +23,57 @@ import static com.xiaoju.ibt.merchant.constants.GatewayConstants.READ_TIME_OUT;
  */
 public class MerchantClient {
 
+    private final String appId;
+    private final String merchantId;
     private final String privateKey;
+    private String domain = DEFAULT_DOMAIN;
     private long connectTimeout = CONNECT_TIME_OUT;
     private long readTimeout = READ_TIME_OUT;
 
-
     /**
-     * @param privateKey
+     * @param appId      String
+     * @param merchantId String
+     * @param privateKey String
+     * @throws PayException
      */
-    public MerchantClient(String privateKey) {
-        if (StringUtils.isEmpty(privateKey)) {
-            throw new PayException("privateKey is empty");
-        }
+    public MerchantClient(String appId, String merchantId, String privateKey) {
+        checkBasicInfo(appId, merchantId, privateKey);
+        this.appId = appId;
+        this.merchantId = merchantId;
         this.privateKey = privateKey;
     }
 
     /**
-     * @param privateKey
-     * @param connectTimeout
-     * @param readTimeout
+     * @param appId      String
+     * @param merchantId String
+     * @param privateKey String
+     * @param domain     String
+     * @throws PayException
      */
-    public MerchantClient(String privateKey, long connectTimeout, long readTimeout) {
-        if (StringUtils.isEmpty(privateKey)) {
-            throw new PayException("privateKey is empty");
+    public MerchantClient(String appId, String merchantId, String privateKey, String domain) {
+        checkBasicInfo(appId, merchantId, privateKey);
+        if (StringUtils.isEmpty(domain)) {
+            throw new PayException("domain is empty");
+        }
+        this.appId = appId;
+        this.merchantId = merchantId;
+        this.privateKey = privateKey;
+        this.domain = domain;
+    }
+
+    /**
+     * @param appId          String
+     * @param merchantId     String
+     * @param privateKey     String
+     * @param domain         String
+     * @param connectTimeout long
+     * @param readTimeout    long
+     * @throws PayException
+     */
+    public MerchantClient(String appId, String merchantId, String privateKey, String domain, long connectTimeout, long readTimeout) {
+        checkBasicInfo(appId, merchantId, privateKey);
+        if (StringUtils.isEmpty(domain)) {
+            throw new PayException("domain is empty");
         }
         if (connectTimeout < 0) {
             throw new PayException("connect timeout is negative");
@@ -52,195 +81,273 @@ public class MerchantClient {
         if (readTimeout < 0) {
             throw new PayException("read timeout is negative");
         }
+        this.appId = appId;
+        this.merchantId = merchantId;
         this.privateKey = privateKey;
+        this.domain = domain;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
     }
 
-    /**
-     * 发单接口
-     *
-     * @param url
-     * @param payInfo
-     */
-    public ResponseInfo prePay(String url, PayInfo payInfo) throws IOException {
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        checkParam(payInfo);
+    public static class Builder {
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(GatewayConstants.APP_ID, payInfo.getAppId());
-        jsonObject.put(GatewayConstants.MERCHANT_ID, payInfo.getMerchantId());
-        jsonObject.put(GatewayConstants.MERCHANT_ORDER_ID, payInfo.getMerchantOrderId());
-        jsonObject.put(GatewayConstants.TOTAL_AMOUNT, payInfo.getTotalAmount());
-        jsonObject.put(GatewayConstants.CURRENCY, payInfo.getCurrency());
-        if (!Objects.isNull(payInfo.getAgencyId())) {
-            jsonObject.put(GatewayConstants.AGENCY_ID, payInfo.getAgencyId());
-        }
-        if (!Objects.isNull(payInfo.getNotifyUrl())) {
-            jsonObject.put(GatewayConstants.NOTIFY_URL, payInfo.getNotifyUrl());
-        }
-        if (!Objects.isNull(payInfo.getTimeExpire())) {
-            jsonObject.put(GatewayConstants.TIME_EXPIRE, payInfo.getTimeExpire());
-        }
-        if (!Objects.isNull(payInfo.getMerchantData())) {
-            jsonObject.put(GatewayConstants.MERCHANT_DATA, payInfo.getMerchantData());
-        }
-        if (!Objects.isNull(payInfo.getFromType())) {
-            jsonObject.put(GatewayConstants.FROM_TYPE, payInfo.getFromType());
-        }
-        if (!Objects.isNull(payInfo.getExtKv())) {
-            jsonObject.put(GatewayConstants.EXT_KV, payInfo.getExtKv());
-        }
-        if (!Objects.isNull(payInfo.getGoodsDetail())) {
-            jsonObject.put(GatewayConstants.GOODS_DETAIL, payInfo.getGoodsDetail());
-        }
-        if (!Objects.isNull(payInfo.getPayer())) {
-            jsonObject.put(GatewayConstants.PAYER, payInfo.getPayer());
-        }
-        if (!Objects.isNull(payInfo.getReturnUrl())) {
-            jsonObject.put(GatewayConstants.RETURN_URL, payInfo.getReturnUrl());
-        }
-        String sign = SignUtil.buildSign(jsonObject, privateKey);
-        jsonObject.put(GatewayConstants.SIGNATURE, sign);
-        String requestBody = jsonObject.toJSONString();
-        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
-        ResponseInfo responseInfo = JsonUtil.toObject(response, ResponseInfo.class);
+        private String appId;
+        private String merchantId;
+        private String privateKey;
+        private String domain = DEFAULT_DOMAIN;
+        private long connectTimeout = CONNECT_TIME_OUT;
+        private long readTimeout = READ_TIME_OUT;
 
-        return responseInfo;
+        public Builder appId(String appId) {
+            this.appId = appId;
+            return this;
+        }
+
+        public Builder merchantId(String merchantId) {
+            this.merchantId = merchantId;
+            return this;
+        }
+
+        public Builder privateKey(String privateKey) {
+            this.privateKey = privateKey;
+            return this;
+        }
+
+        public Builder domain(String domain) {
+            this.domain = domain;
+            return this;
+        }
+
+        public Builder connectTimeout(long connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        public Builder readTimeout(long readTimeout) {
+            this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public MerchantClient build() {
+            return new MerchantClient(appId, merchantId, privateKey, domain, connectTimeout, readTimeout);
+        }
+
     }
 
     /**
-     * 支付查询接口
+     * Merchant Places an Order
      *
-     * @param url
-     * @param payInfo
+     * @param payParameter
+     * @see <a href="https://didipay.didiglobal.com/developer/docs/en/">didipay</a>
      */
-    public ResponseInfo payQuery(String url, PayInfo payInfo) throws IOException {
+    public ResponseInfo prePay(PayParameter payParameter) {
 
-        checkPayQuery(payInfo);
+        checkParam(payParameter);
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(GatewayConstants.APP_ID, payInfo.getAppId());
-        jsonObject.put(GatewayConstants.MERCHANT_ID, payInfo.getMerchantId());
-        jsonObject.put(GatewayConstants.MERCHANT_ORDER_ID, payInfo.getMerchantOrderId());
-        jsonObject.put(GatewayConstants.PAY_ORDER_ID, payInfo.getPayOrderId());
-        String sign = SignUtil.buildSign(jsonObject, privateKey);
-        jsonObject.put(GatewayConstants.SIGNATURE, sign);
-        String requestBody = jsonObject.toJSONString();
-        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
-        ResponseInfo responseInfo = JsonUtil.toObject(response, ResponseInfo.class);
+        String url = domain + PREPAY_URL;
 
-        return responseInfo;
+        Map<String, Object> params = new HashMap<>();
+        params.put(GatewayConstants.APP_ID, appId);
+        params.put(GatewayConstants.MERCHANT_ID, merchantId);
+        params.put(GatewayConstants.MERCHANT_ORDER_ID, payParameter.getMerchantOrderId());
+        params.put(GatewayConstants.TOTAL_AMOUNT, payParameter.getTotalAmount());
+        params.put(GatewayConstants.CURRENCY, payParameter.getCurrency());
+        if (!Objects.isNull(payParameter.getAgencyId())) {
+            params.put(GatewayConstants.AGENCY_ID, payParameter.getAgencyId());
+        }
+        if (!Objects.isNull(payParameter.getNotifyUrl())) {
+            params.put(GatewayConstants.NOTIFY_URL, payParameter.getNotifyUrl());
+        }
+        if (!Objects.isNull(payParameter.getTimeExpire())) {
+            params.put(GatewayConstants.TIME_EXPIRE, payParameter.getTimeExpire());
+        }
+        if (!Objects.isNull(payParameter.getMerchantData())) {
+            params.put(GatewayConstants.MERCHANT_DATA, payParameter.getMerchantData());
+        }
+        if (!Objects.isNull(payParameter.getFromType())) {
+            params.put(GatewayConstants.FROM_TYPE, payParameter.getFromType());
+        }
+        if (!Objects.isNull(payParameter.getExtKv())) {
+            params.put(GatewayConstants.EXT_KV, payParameter.getExtKv());
+        }
+        if (!Objects.isNull(payParameter.getGoodsDetail())) {
+            params.put(GatewayConstants.GOODS_DETAIL, payParameter.getGoodsDetail());
+        }
+        if (!Objects.isNull(payParameter.getPayer())) {
+            params.put(GatewayConstants.PAYER, payParameter.getPayer());
+        }
+        if (!Objects.isNull(payParameter.getReturnUrl())) {
+            params.put(GatewayConstants.RETURN_URL, payParameter.getReturnUrl());
+        }
+
+        return sendRequest(url, params);
     }
 
     /**
-     * 退款接口
+     * Payment Query
      *
-     * @param url
-     * @param payInfo
+     * @param payParameter
+     * @see <a href="https://didipay.didiglobal.com/developer/docs/en/">didipay</a>
      */
-    public ResponseInfo refund(String url, PayInfo payInfo) throws IOException {
+    public ResponseInfo payQuery(PayParameter payParameter) {
 
-        checkRefund(payInfo);
+        checkPayQuery(payParameter);
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(GatewayConstants.APP_ID, payInfo.getAppId());
-        jsonObject.put(GatewayConstants.MERCHANT_ID, payInfo.getMerchantId());
-        jsonObject.put(GatewayConstants.MERCHANT_ORDER_ID, payInfo.getMerchantOrderId());
-        jsonObject.put(GatewayConstants.PAY_ORDER_ID, payInfo.getPayOrderId());
-        jsonObject.put(GatewayConstants.MERCHANT_REFUND_ID, payInfo.getMerchantRefundId());
-        jsonObject.put(GatewayConstants.AMOUNT, payInfo.getAmount());
-        String sign = SignUtil.buildSign(jsonObject, privateKey);
-        jsonObject.put(GatewayConstants.SIGNATURE, sign);
-        String requestBody = jsonObject.toJSONString();
-        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
-        ResponseInfo responseInfo = JsonUtil.toObject(response, ResponseInfo.class);
+        String url = domain + PAY_QUERY_URL;
 
-        return responseInfo;
+        Map<String, Object> params = new HashMap<>();
+        params.put(GatewayConstants.APP_ID, appId);
+        params.put(GatewayConstants.MERCHANT_ID, merchantId);
+        params.put(GatewayConstants.MERCHANT_ORDER_ID, payParameter.getMerchantOrderId());
+        params.put(GatewayConstants.PAY_ORDER_ID, payParameter.getPayOrderId());
+
+        return sendRequest(url, params);
     }
 
     /**
-     * 退款查询接口
+     * Request Refund
      *
-     * @param url
-     * @param payInfo
+     * @param payParameter
+     * @see <a href="https://didipay.didiglobal.com/developer/docs/en/">didipay</a>
      */
-    public ResponseInfo refundQuery(String url, PayInfo payInfo) throws IOException {
+    public ResponseInfo refund(PayParameter payParameter) {
 
-        checkPayQuery(payInfo);
+        checkRefund(payParameter);
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(GatewayConstants.APP_ID, payInfo.getAppId());
-        jsonObject.put(GatewayConstants.MERCHANT_ID, payInfo.getMerchantId());
-        jsonObject.put(GatewayConstants.MERCHANT_ORDER_ID, payInfo.getMerchantOrderId());
-        jsonObject.put(GatewayConstants.PAY_ORDER_ID, payInfo.getPayOrderId());
-        String sign = SignUtil.buildSign(jsonObject, privateKey);
-        jsonObject.put(GatewayConstants.SIGNATURE, sign);
-        String requestBody = jsonObject.toJSONString();
-        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
-        ResponseInfo responseInfo = JsonUtil.toObject(response, ResponseInfo.class);
+        String url = domain + REFUND_URL;
 
-        return responseInfo;
+        Map<String, Object> params = new HashMap<>();
+        params.put(GatewayConstants.APP_ID, appId);
+        params.put(GatewayConstants.MERCHANT_ID, merchantId);
+        params.put(GatewayConstants.MERCHANT_ORDER_ID, payParameter.getMerchantOrderId());
+        params.put(GatewayConstants.PAY_ORDER_ID, payParameter.getPayOrderId());
+        params.put(GatewayConstants.MERCHANT_REFUND_ID, payParameter.getMerchantRefundId());
+        params.put(GatewayConstants.AMOUNT, payParameter.getAmount());
+
+        return sendRequest(url, params);
     }
 
-    private void checkParam(PayInfo payInfo) {
+    /**
+     * Refund Query
+     *
+     * @param payParameter
+     * @see <a href="https://didipay.didiglobal.com/developer/docs/en/">didipay</a>
+     */
+    public ResponseInfo refundQuery(PayParameter payParameter) {
 
-        checkBasicInfo(payInfo);
+        checkPayQuery(payParameter);
 
-        if (StringUtils.isEmpty(payInfo.getCurrency())) {
+        String url = domain + REFUND_QUERY_URL;
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(GatewayConstants.APP_ID, appId);
+        params.put(GatewayConstants.MERCHANT_ID, merchantId);
+        params.put(GatewayConstants.MERCHANT_ORDER_ID, payParameter.getMerchantOrderId());
+        params.put(GatewayConstants.PAY_ORDER_ID, payParameter.getPayOrderId());
+
+        return sendRequest(url, params);
+    }
+
+    /**
+     * Close Trade
+     *
+     * @param payParameter
+     * @see <a href="https://didipay.didiglobal.com/developer/docs/en/">didipay</a>
+     */
+    public ResponseInfo closeTrade(PayParameter payParameter) {
+
+        checkParam(payParameter);
+
+        String url = domain + CLOSE_TRADE_URL;
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(GatewayConstants.APP_ID, appId);
+        params.put(GatewayConstants.MERCHANT_ID, merchantId);
+        params.put(GatewayConstants.MERCHANT_ORDER_ID, payParameter.getMerchantOrderId());
+
+        return sendRequest(url, params);
+    }
+
+    public ResponseInfo sendRequest(String url, Map<String, Object> params) {
+
+        String sign = SignUtil.buildSign(params, privateKey);
+        params.put(GatewayConstants.SIGNATURE, sign);
+        String requestBody = JsonUtil.toString(params);
+        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
+
+        return  JsonUtil.toObject(response, ResponseInfo.class);
+    }
+
+    private void checkParam(PayParameter payParameter) {
+
+        checkMerchantOrderId(payParameter);
+
+        if (StringUtils.isEmpty(payParameter.getCurrency())) {
             throw new PayException("currency is empty");
         }
 
-        if (StringUtils.isEmpty(payInfo.getTotalAmount())) {
+        if (StringUtils.isEmpty(payParameter.getTotalAmount())) {
             throw new PayException("totalAmount is empty");
         }
 
     }
 
-    public void checkPayQuery(PayInfo payInfo) {
+    private void checkPayQuery(PayParameter payParameter) {
 
-        checkBasicInfo(payInfo);
+        checkMerchantOrderId(payParameter);
 
-        if (StringUtils.isEmpty(payInfo.getPayOrderId())) {
+        if (StringUtils.isEmpty(payParameter.getPayOrderId())) {
             throw new PayException("payOrderId is empty");
         }
 
     }
 
-    public void checkRefund(PayInfo payInfo) {
+    private void checkRefund(PayParameter payParameter) {
 
-        checkBasicInfo(payInfo);
+        checkMerchantOrderId(payParameter);
 
-        if (StringUtils.isEmpty(payInfo.getPayOrderId())) {
+        if (StringUtils.isEmpty(payParameter.getPayOrderId())) {
             throw new PayException("payOrderId is empty");
         }
 
-        if (StringUtils.isEmpty(payInfo.getMerchantRefundId())) {
+        if (StringUtils.isEmpty(payParameter.getMerchantRefundId())) {
             throw new PayException("merchantRefundId is empty");
         }
 
-        if (StringUtils.isEmpty(payInfo.getAmount())) {
+        if (StringUtils.isEmpty(payParameter.getAmount())) {
             throw new PayException("amount is empty");
         }
 
     }
 
-    public void checkBasicInfo(PayInfo payInfo) {
+    private void checkMerchantOrderId(PayParameter payParameter) {
 
-        if (Objects.isNull(payInfo)) {
+        if (Objects.isNull(payParameter)) {
             throw new PayException("payInfo is null");
         }
 
-        if (StringUtils.isEmpty(payInfo.getAppId())) {
+        if (StringUtils.isEmpty(payParameter.getMerchantOrderId())) {
+            throw new PayException("merchantOrderId is empty");
+        }
+
+    }
+
+    private void checkBasicInfo(String appId, String merchantId, String privateKey) {
+
+        if (StringUtils.isEmpty(appId)) {
             throw new PayException("appId is empty");
         }
 
-        if (StringUtils.isEmpty(payInfo.getMerchantId())) {
+        if (StringUtils.isEmpty(merchantId)) {
             throw new PayException("merchantId is empty");
         }
 
-        if (StringUtils.isEmpty(payInfo.getMerchantOrderId())) {
-            throw new PayException("merchantOrderId is empty");
+        if (StringUtils.isEmpty(privateKey)) {
+            throw new PayException("privateKey is empty");
         }
     }
 

@@ -1,10 +1,10 @@
 package com.xiaoju.ibt.merchant.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.*;
@@ -21,75 +21,85 @@ import java.util.Map;
  * @author guochen
  * @date 2021/11/21 15:22
  */
-@Slf4j
 public class SHA256WITHRSA {
+
+    private static Logger logger = LoggerFactory.getLogger(SHA256WITHRSA.class);
 
     public static final String PUBLIC_KEY = "publicKey";
     public static final String PRIVATE_KEY = "privateKey";
     /**
-     * 当密钥位数为2048时，最大解密长度应为256，128 对应 1024，256对应2048
+     * When the number of key bits is 2048, the maximum decryption length
+     * should be 256, 128 corresponds to 1024, and 256 corresponds to 2048
      */
     private static final String KEY_ALGORITHM = "RSA";
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     /**
-     * 用私钥对信息进行数字签名
+     * Digitally sign information with a private key
      *
-     * @param plainText  加密数据
-     * @param privateKey 私钥-base64加密的
+     * @param plainText  Encrypted data
+     * @param privateKey Private key - base64 encrypted
      * @return String || null
      */
     public static String sign(byte[] plainText, String privateKey) {
         try {
             if (StringUtils.isBlank(privateKey)) {
-                log.error("signature failed. private key is empty");
+                if(logger.isDebugEnabled()) {
+                    logger.debug("signature failed. private key is empty");
+                }
                 throw new RuntimeException("signature failed. private key is empty");
             }
-            // 获取私钥对象
+            // Get private key object
             PrivateKey priKey = getPkcs1PrivateKey(privateKey);
             if (priKey == null) {
-                log.error("signature failed. private key read failed");
+                if(logger.isDebugEnabled()) {
+                    logger.error("signature failed. private key read failed");
+                }
                 throw new RuntimeException("signature failed. private key read failed");
             }
-            // 用私钥对信息进行数字签名
+            // Digitally sign information with a private key
             Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
             sign.initSign(priKey);
             sign.update(plainText);
             return Base64.encodeBase64String(sign.sign());
         } catch (Exception e) {
-            log.error("signature", e);
+            if(logger.isDebugEnabled()) {
+                logger.debug("signature", e);
+            }
             throw new RuntimeException("signature failed");
         }
     }
 
     /**
-     * 验签
+     * Signature verification
      *
-     * @param plainText 明文
-     * @param publicKey 公钥
-     * @param sign      签名
+     * @param plainText Plaintext
+     * @param publicKey Public key
+     * @param sign      Sign
      * @return
      */
     public static boolean verify(byte[] plainText, String publicKey, String sign) {
         try {
-            // 获取公钥对象
+            // get public key object
             PublicKey pubKey = getPublicKey(publicKey);
             Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
             signature.initVerify(pubKey);
             signature.update(plainText);
-            // 验签
+            // signature verification
             return signature.verify(Base64.decodeBase64(sign));
         } catch (Throwable e) {
-            log.error("verify signature failed", e);
+            if(logger.isDebugEnabled()) {
+                logger.debug("verify signature failed", e);
+            }
             return false;
         }
     }
 
     /**
-     * 解析公钥对象
+     * Parse public key object
      *
-     * @param publicKey 公钥字符串
-     * @return 公钥对象
+     * @param publicKey Public key string
+     * @return Public key object
      * @throws InvalidKeySpecException
      */
     private static PublicKey getPublicKey(String publicKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
@@ -101,10 +111,10 @@ public class SHA256WITHRSA {
 
 
     /**
-     * 解析私钥对象
+     * Parse private key object
      *
-     * @param privateKey 私钥字符串
-     * @return 私钥对象
+     * @param privateKey Private key string
+     * @return Private key object
      * @throws InvalidKeySpecException
      */
     public static PrivateKey getPkcs1PrivateKey(String privateKey) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
@@ -124,7 +134,7 @@ public class SHA256WITHRSA {
 
 
     /**
-     * 生成密钥
+     * Generate key
      *
      * @return
      * @throws Exception
@@ -133,9 +143,9 @@ public class SHA256WITHRSA {
         Map<String, String> keyMap = new HashMap<>();
         KeyPairGenerator keygen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
         SecureRandom random = new SecureRandom();
-        // 初始加密，512位已被破解，用1024位,最好用2048位
+        // Initial encryption, 512 bits have been cracked, use 1024 bits, preferably 2048 bits
         keygen.initialize(1024, random);
-        // 取得密钥对
+        // get key pair
         KeyPair kp = keygen.generateKeyPair();
         RSAPrivateKey privateKey = (RSAPrivateKey) kp.getPrivate();
         String privateKeyString = Base64.encodeBase64String(privateKey.getEncoded());

@@ -1,10 +1,9 @@
 package com.xiaoju.ibt.merchant.util;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xiaoju.ibt.merchant.constants.GatewayConstants;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -17,47 +16,35 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * 签名工具
+ * Sign util
  *
  * @author gaosai
  */
-@Slf4j
 public class SignUtil {
 
+    private static Logger logger = LoggerFactory.getLogger(SignUtil.class);
+
     /**
-     * 构建签名
+     * Build signature
      *
-     * @param jsonObject
+     * @param params
      * @param privateKey
      * @return
      */
-    public static String buildSign(JSONObject jsonObject, String privateKey) {
-        TreeMap<String, String> treeMap = parseParams(jsonObject, null);
+    public static String buildSign(Map<String, Object> params, String privateKey) {
+        TreeMap<String, String> treeMap = parseParams(params);
         String content = buildContent(treeMap);
         return SHA256WITHRSA.sign(content.getBytes(StandardCharsets.UTF_8), privateKey);
     }
 
-    /**
-     * 验签
-     *
-     * @param jsonObject 请求参数
-     * @param map        请求参数
-     * @param publicKey  公钥
-     * @param sign       请求中的签名
-     * @return 是否未被篡改
-     */
-    public static boolean verifySign(JSONObject jsonObject, Map<String, String> map, String publicKey, String sign) {
-        TreeMap<String, String> treeMap = parseParams(jsonObject, map);
-        return verifySign(treeMap, publicKey, sign);
-    }
 
     /**
-     * 验签
+     * Signature verification
      *
-     * @param map       请求参数
-     * @param publicKey 公钥
-     * @param sign      请求中的签名
-     * @return 是否未被篡改
+     * @param map       Request parameter
+     * @param publicKey Public key
+     * @param sign      Signature
+     * @return Has not been tampered with
      */
     public static boolean verifySign(TreeMap<String, String> map, String publicKey, String sign) {
         String content = buildContent(map);
@@ -65,16 +52,15 @@ public class SignUtil {
     }
 
     /**
-     * 格式化请求参数
+     * Format request parameters
      *
-     * @param jsonObject
      * @param map
-     * @return
+     * @return result
      */
-    public static TreeMap<String, String> parseParams(JSONObject jsonObject, Map<String, String> map) {
+    public static TreeMap<String, String> parseParams(Map<String, Object> map) {
         TreeMap<String, String> treeMap = new TreeMap<>();
-        for (String key : jsonObject.keySet()) {
-            Object value = jsonObject.get(key);
+        for (String key : map.keySet()) {
+            Object value = map.get(key);
             String str = JsonUtil.toString(value);
             if (StringUtils.isNotEmpty(str)) {
                 treeMap.put(key, str);
@@ -82,16 +68,13 @@ public class SignUtil {
                 treeMap.put(key, "");
             }
         }
-        if (map != null) {
-            treeMap.putAll(map);
-        }
         return treeMap;
     }
 
     /**
-     * 1、将参数按照key的ASCII码从小到大排序
-     * 2、过滤value为空的值和为sign的值
-     * 3、将参数按照key-value的方式用&连接
+     * 1. Sort the parameters according to the ASCII code of the key from small to large
+     * 2. Filter the value whose value is empty and the value whose value is sign
+     * 3. Connect the parameters with & in the way of key-value
      *
      * @return content
      */
@@ -110,24 +93,29 @@ public class SignUtil {
                 content.append(entry.getKey()).append("=");
             }
         }
-        log.info("sign content={}", content.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("sign content={}", content.toString());
+        }
         return content.toString();
     }
 
     public static boolean verify(byte[] plainText, String publicKey, String sign) {
         try {
-            // 获取公钥对象
+            // get public key object
             PublicKey pubKey = getPublicKey(publicKey);
             Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
             signature.initVerify(pubKey);
             signature.update(plainText);
-            // 验签
+            // signature verification
             return signature.verify(Base64.decodeBase64(sign));
         } catch (Throwable e) {
-            log.error("verify signature failed", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("verify signature failed", e);
+            }
             return false;
         }
     }
+
     private static final String KEY_ALGORITHM = "RSA";
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 

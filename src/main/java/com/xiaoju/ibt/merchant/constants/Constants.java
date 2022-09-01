@@ -28,4 +28,8 @@ public class Constants {
      * REFUND QUERY URL
      */
     public static final String REFUND_QUERY_URL = "/gateway/api/outer/v1/transaction/refund/query";
+    /**
+     * DEFAULT DOMAIN
+     */
+    public static final String DEFAULT_DOMAIN = "https://api.99pay.com.br";
 }

@@ -1,7 +1,7 @@
 package com.xiaoju.ibt.merchant.constants;
 
 /**
- * 网关对应的常量信息
+ * Constant information corresponding to the gateway
  *
  * @author gaosai
  */

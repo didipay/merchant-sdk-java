@@ -1,19 +1,82 @@
-99pay支付商户 java sdk
+## Didipay payment merchant java sdk
 
-官网(https://didipay.didiglobal.com/developer/docs/en/)
+Official website (https://didipay.didiglobal.com)
 
-## 签名流程
+## Dependencies
+Java7 or higher is required
 
-获取所有请求参数，不包括字节类型参数，如文件、字节流，剔除sign字段，并按照第一个字符的键值ASCII码递增排序（字母升序排序），如果遇到相同字符则按照第二个字符的键值ASCII码递增排序，以此类推。
 
-筛选并排序
+## Signature process
 
-拼接：将排序后的参数与其对应值，组合成“参数=参数值”的格式，并且把这些参数用&字符连接起来，此时生成的字符串为待签名字符串。
+Get all request parameters, excluding byte-type parameters, such as files and byte streams, remove the sign field, and sort them in ascending order according to the key-value ASCII code of the first character (in ascending alphabetical order). The two-character key-value ASCII codes are sorted in ascending order, and so on.
 
-调用签名算法：使用各自语言对应的SHA256WithRSA签名函数利用商户私钥对待签名字符串进行签名，并进行Base64编码。
-把生成的签名赋值给sign参数，拼接到请求参数中。
+Filter and sort
 
-密钥格式问题
+Splicing: Combine the sorted parameters and their corresponding values ​​into the format of "parameter=parameter value", and connect these parameters with the & character, and the generated string is the string to be signed.
 
-Java语言使用的私钥为PKCS8编码格式，非Java语言使用的私钥为PKCS1格式。
-Java语言需去除掉密钥中的BEGIN、END行，和换行符、空格。非Java语言保留原始密钥格式。
+Call the signature algorithm: Use the SHA256WithRSA signature function corresponding to the respective language to use the merchant's private key to sign the signature string to be signed, and perform Base64 encoding.
+Assign the generated signature to the sign parameter and concatenate it into the request parameter.
+
+Key format issue
+
+The private key used in Java language is in PKCS8 encoding format, and the private key used in non-Java language is in PKCS1 format.
+The Java language needs to remove the BEGIN, END lines, line breaks, and spaces in the key. Non-Java languages ​​retain the original key format.
+
+## Getting Started
+We recommend managing third-party dependencies from Maven, which allows you to add new libraries and include them in your projects.
+
+### Install the JAVA
+The latest version of the Didipay Java server-side SDK is v0.0.6. It supports Java versions 1.7+.
+
+Check your Java version:
+```shell
+java -version
+```
+
+### Install Maven
+
+From the command-line, download Maven.
+
+### Add the dependency
+To install the library using Maven, place the following in your project’s pom.xml file:
+```shell
+<dependency>
+  <groupId>io.github.didipay</groupId>
+  <artifactId>merchant-java-sdk</artifactId>
+  <version>${didipay.version}</version>
+</dependency>
+```
+
+### Run your first request:
+Now that you have the JAVA SDK installed, you can create API requests.
+ ```java
+public class Server {
+    public static void main(String[] args) {
+
+        String domain = "https://api.99pay.com.br";
+        String appId = "appId";
+        String merchantId = "merchantId";
+        String merchantOrderId = "merchantOrderId";
+        String payOrderId = "payOrderId";
+        String key = "key";
+        PayParameter payParameter = PayParameter.builder()
+                .merchantOrderId(merchantOrderId)
+                .payOrderId(payOrderId)
+                .build();
+        
+        MerchantClient merchantClient = MerchantClient.builder().appId(appId)
+                .merchantId(merchantId).privateKey(key)
+                .domain(domain).build();
+        ResponseInfo responseInfo = merchantClient.payQuery(payParameter);
+        System.out.println("responseInfo:" + responseInfo);
+    }
+}
+ ```
+Save the file as MerchantClientTest.Java. From the command-line, cd to the directory containing the file you just saved then run:
+ ```shell
+Run MerchantClientTest.main()
+ ```
+If everything worked, the command-line shows the following response. Save these identifiers so you can use them while building your integration.
+This wraps up the quickstart. See the link below for a few different ways to process a payment for the product you just created.
+
+[Document](https://didipay.didiglobal.com/developer/docs/en/)

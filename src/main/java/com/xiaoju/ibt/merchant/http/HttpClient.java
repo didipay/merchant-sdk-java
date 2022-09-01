@@ -1,7 +1,9 @@
 package com.xiaoju.ibt.merchant.http;
 
-import lombok.extern.slf4j.Slf4j;
+import com.xiaoju.ibt.merchant.exception.PayException;
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -10,10 +12,11 @@ import java.util.concurrent.TimeUnit;
  * http client
  * @Author: xingrufei
  */
-@Slf4j
 public class HttpClient {
 
-    public static String sendHttpRequest(String url, long connectTimeout, long readTimeout, String data) throws IOException {
+    private static Logger logger = LoggerFactory.getLogger(HttpClient.class);
+
+    public static String sendHttpRequest(String url, long connectTimeout, long readTimeout, String data){
 
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
@@ -38,11 +41,15 @@ public class HttpClient {
             if (response.isSuccessful()) {
                 return response.body().string();
             }
-            log.error("response code:{}", response.code());
+            if(logger.isDebugEnabled()) {
+                logger.debug("response code:{}", response.code());
+            }
             return response.body().string();
         } catch (IOException e) {
-            log.error("send http request error,url:{},requestBody:{}", url, requestBody);
-            throw e;
+            if(logger.isDebugEnabled()) {
+                logger.debug("send http request error,url:{},requestBody:{}", url, requestBody);
+            }
+            throw new PayException("send request error",e);
         }
 
     }
