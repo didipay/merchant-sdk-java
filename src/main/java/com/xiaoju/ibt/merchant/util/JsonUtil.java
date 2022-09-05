@@ -27,7 +27,7 @@ public enum JsonUtil {
                 //时间类型
                 .registerModule(new JavaTimeModule());
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-        objectMapper.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        objectMapper.setTimeZone(TimeZone.getDefault());
     }
 
     /**

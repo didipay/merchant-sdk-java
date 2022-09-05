@@ -1,5 +1,6 @@
 package com.xiaoju.ibt.merchant.util;
 
+import com.xiaoju.ibt.merchant.exception.PayException;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
@@ -23,7 +24,7 @@ import java.util.Map;
  */
 public class SHA256WITHRSA {
 
-    private static Logger logger = LoggerFactory.getLogger(SHA256WITHRSA.class);
+    private static final Logger logger = LoggerFactory.getLogger(SHA256WITHRSA.class);
 
     public static final String PUBLIC_KEY = "publicKey";
     public static final String PRIVATE_KEY = "privateKey";
@@ -47,7 +48,7 @@ public class SHA256WITHRSA {
                 if(logger.isDebugEnabled()) {
                     logger.debug("signature failed. private key is empty");
                 }
-                throw new RuntimeException("signature failed. private key is empty");
+                throw new PayException("signature failed. private key is empty");
             }
             // Get private key object
             PrivateKey priKey = getPkcs1PrivateKey(privateKey);
@@ -55,7 +56,7 @@ public class SHA256WITHRSA {
                 if(logger.isDebugEnabled()) {
                     logger.error("signature failed. private key read failed");
                 }
-                throw new RuntimeException("signature failed. private key read failed");
+                throw new PayException("signature failed. private key read failed");
             }
             // Digitally sign information with a private key
             Signature sign = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -66,7 +67,7 @@ public class SHA256WITHRSA {
             if(logger.isDebugEnabled()) {
                 logger.debug("signature", e);
             }
-            throw new RuntimeException("signature failed");
+            throw new PayException("signature failed");
         }
     }
 

@@ -22,7 +22,10 @@ import java.util.TreeMap;
  */
 public class SignUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(SignUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(SignUtil.class);
+
+    private static final String PRI_PRE = "-----BEGIN RSA PRIVATE KEY-----\n";
+    private static final String PRI_TAIL = "\n-----END RSA PRIVATE KEY-----";
 
     /**
      * Build signature
@@ -33,6 +36,8 @@ public class SignUtil {
      */
     public static String buildSign(Map<String, Object> params, String privateKey) {
         TreeMap<String, String> treeMap = parseParams(params);
+        privateKey = privateKey.replace(PRI_PRE, "");
+        privateKey = privateKey.replace(PRI_TAIL, "");
         String content = buildContent(treeMap);
         return SHA256WITHRSA.sign(content.getBytes(StandardCharsets.UTF_8), privateKey);
     }
@@ -94,7 +99,7 @@ public class SignUtil {
             }
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("sign content={}", content.toString());
+            logger.debug("sign content={}", content);
         }
         return content.toString();
     }

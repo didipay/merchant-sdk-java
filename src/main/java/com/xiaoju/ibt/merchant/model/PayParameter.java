@@ -1,6 +1,5 @@
 package com.xiaoju.ibt.merchant.model;
 
-import com.xiaoju.ibt.merchant.client.MerchantClient;
 
 /**
  * @Author: xingrufei

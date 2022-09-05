@@ -277,9 +277,9 @@ public class MerchantClient {
         String sign = SignUtil.buildSign(params, privateKey);
         params.put(GatewayConstants.SIGNATURE, sign);
         String requestBody = JsonUtil.toString(params);
-        String response = HttpClient.sendHttpRequest(url, connectTimeout, readTimeout, requestBody);
+        String response = HttpClient.sendHttpRequest(url, "POST", connectTimeout, readTimeout, requestBody);
 
-        return  JsonUtil.toObject(response, ResponseInfo.class);
+        return JsonUtil.toObject(response, ResponseInfo.class);
     }
 
     private void checkParam(PayParameter payParameter) {
