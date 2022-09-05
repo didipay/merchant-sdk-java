@@ -26,6 +26,9 @@ public class SignUtil {
 
     private static final String PRI_PRE = "-----BEGIN RSA PRIVATE KEY-----\n";
     private static final String PRI_TAIL = "\n-----END RSA PRIVATE KEY-----";
+    private static final String PUB_PRE = "-----BEGIN PUBLIC KEY-----\n";
+    private static final String PUB_TAIL = "\n-----END PUBLIC KEY-----";
+
 
     /**
      * Build signature
@@ -42,6 +45,21 @@ public class SignUtil {
         return SHA256WITHRSA.sign(content.getBytes(StandardCharsets.UTF_8), privateKey);
     }
 
+    /**
+     * Signature verification
+     *
+     * @param map       Request parameter
+     * @param publicKey Public key
+     * @param sign      Signature
+     * @return Has not been tampered with
+     */
+    public static boolean verifySign(Map<String, Object> map, String publicKey, String sign) {
+        TreeMap<String, String> treeMap = parseParams(map);
+        publicKey = publicKey.replace(PUB_PRE, "");
+        publicKey = publicKey.replace(PUB_TAIL, "");
+        publicKey = PUB_PRE + publicKey + PUB_TAIL;
+        return verifySign(treeMap, publicKey, sign);
+    }
 
     /**
      * Signature verification
