@@ -15,8 +15,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Install Maven
+        run: apt-get install maven
       - name: Build with Maven
-        run: ./mvnw clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
+        run: mvn clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
         with:
