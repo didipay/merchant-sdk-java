@@ -325,12 +325,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven_source_version}</version>
-                <!-- 绑定source插件到Maven的生命周期,并在生命周期后执行绑定的source的goal -->
                 <executions>
                     <execution>
-                        <!-- 绑定source插件到Maven的生命周期 -->
                         <phase>compile</phase>
-                        <!--在生命周期后执行绑定的source插件的goals -->
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
