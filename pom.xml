@@ -11,8 +11,9 @@
 
     <licenses>
         <license>
-            <name>BSD3-Clause</name>
-            <url>https://spdx.org/licenses/BSD-3-Clause.html</url>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
     <scm>
