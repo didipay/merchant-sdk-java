@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.xiaoju.ibt</groupId>
+    <groupId>io.github.didipay</groupId>
     <artifactId>merchant-java-sdk</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <name>merchant-java-sdk</name>
     <description>merchant-java-sdk</description>
     <url>https://github.com/didipay/merchant-sdk-java</url>
@@ -236,6 +236,7 @@
                             <source>1.8</source>
                             <target>1.8</target>
                             <fork>true</fork>
+                            <skip>true</skip>
                             <verbose>true</verbose>
                             <encoding>UTF-8</encoding>
                         </configuration>

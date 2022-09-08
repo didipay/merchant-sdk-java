@@ -40,6 +40,100 @@ public class MerchantClientTest {
         Assertions.assertEquals("success", responseInfo.getReturnMsg());
     }
 
+    @Test
+    public void testPrepay() {
+
+        String domain = "https://merchant-server-merchant-sdk-bmtfqitgrw.cn-hangzhou.fcapp.run";
+        String appId = "appId";
+        String merchantId = "merchantId";
+        String merchantOrderId = "merchantOrderId";
+        String payOrderId = "payOrderId";
+        String key = readFile(PRIVATE_KEY_PATH);
+        PayParameter payParameter = PayParameter.builder()
+                .merchantOrderId(merchantOrderId)
+                .payOrderId(payOrderId)
+                .totalAmount("12000")
+                .currency("BRL")
+                .build();
+
+        MerchantClient merchantClient = MerchantClient.builder().appId(appId)
+                .merchantId(merchantId).privateKey(key)
+                .domain(domain).build();
+        ResponseInfo responseInfo = merchantClient.prePay(payParameter);
+        Assertions.assertEquals(200, responseInfo.getReturnNo());
+        Assertions.assertEquals("success", responseInfo.getReturnMsg());
+    }
+
+    @Test
+    public void testRefund() {
+
+        String domain = "https://merchant-server-merchant-sdk-bmtfqitgrw.cn-hangzhou.fcapp.run";
+        String appId = "appId";
+        String merchantId = "merchantId";
+        String merchantOrderId = "merchantOrderId";
+        String payOrderId = "payOrderId";
+        String merchantRefundId = "merchantRefundId";
+        String key = readFile(PRIVATE_KEY_PATH);
+        PayParameter payParameter = PayParameter.builder()
+                .merchantOrderId(merchantOrderId)
+                .payOrderId(payOrderId)
+                .merchantRefundId(merchantRefundId)
+                .amount("500")
+                .build();
+
+        MerchantClient merchantClient = MerchantClient.builder().appId(appId)
+                .merchantId(merchantId).privateKey(key)
+                .domain(domain).build();
+        ResponseInfo responseInfo = merchantClient.refund(payParameter);
+        Assertions.assertEquals(200, responseInfo.getReturnNo());
+        Assertions.assertEquals("success", responseInfo.getReturnMsg());
+    }
+
+    @Test
+    public void testRefundQuery() {
+
+        String domain = "https://merchant-server-merchant-sdk-bmtfqitgrw.cn-hangzhou.fcapp.run";
+        String appId = "appId";
+        String merchantId = "merchantId";
+        String merchantOrderId = "merchantOrderId";
+        String payOrderId = "payOrderId";
+        String key = readFile(PRIVATE_KEY_PATH);
+        PayParameter payParameter = PayParameter.builder()
+                .merchantOrderId(merchantOrderId)
+                .payOrderId(payOrderId)
+                .amount("500")
+                .build();
+
+        MerchantClient merchantClient = MerchantClient.builder().appId(appId)
+                .merchantId(merchantId).privateKey(key)
+                .domain(domain).build();
+        ResponseInfo responseInfo = merchantClient.refundQuery(payParameter);
+        Assertions.assertEquals(200, responseInfo.getReturnNo());
+        Assertions.assertEquals("success", responseInfo.getReturnMsg());
+    }
+
+    @Test
+    public void testCloseTrade() {
+
+        String domain = "https://merchant-server-merchant-sdk-bmtfqitgrw.cn-hangzhou.fcapp.run";
+        String appId = "appId";
+        String merchantId = "merchantId";
+        String merchantOrderId = "merchantOrderId";
+        String payOrderId = "payOrderId";
+        String key = readFile(PRIVATE_KEY_PATH);
+        PayParameter payParameter = PayParameter.builder()
+                .merchantOrderId(merchantOrderId)
+                .payOrderId(payOrderId)
+                .build();
+
+        MerchantClient merchantClient = MerchantClient.builder().appId(appId)
+                .merchantId(merchantId).privateKey(key)
+                .domain(domain).build();
+        ResponseInfo responseInfo = merchantClient.closeTrade(payParameter);
+        Assertions.assertEquals(200, responseInfo.getReturnNo());
+        Assertions.assertEquals("success", responseInfo.getReturnMsg());
+    }
+
     private String readFile(String filePath) {
 
         StringBuilder sb = new StringBuilder();
