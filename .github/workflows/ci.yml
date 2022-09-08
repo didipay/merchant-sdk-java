@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 7, 8, 11 ]
+        java: [ 8, 11 ]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Generate Key
-        run: openssl genrsa -out app_private_key.pem && openssl pkcs8 -topk8 -nocrypt -in app_private_key.pem -out app_pkcs8.pem && openssl rsa -in app_private_key.pem -pubout -out app_public_key.pem
+        run: openssl genrsa -out app_private_key.pem && openssl rsa -in app_private_key.pem -pubout -out app_public_key.pem && pwd
       - name: Build with Maven
         run: mvn clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
       - name: Upload coverage to codecov

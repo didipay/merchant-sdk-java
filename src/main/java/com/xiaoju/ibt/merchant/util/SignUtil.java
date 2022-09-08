@@ -24,8 +24,8 @@ public class SignUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(SignUtil.class);
 
-    private static final String PRI_PRE = "-----BEGIN PRIVATE KEY-----\n";
-    private static final String PRI_TAIL = "\n-----END PRIVATE KEY-----";
+    private static final String PRI_PRE = "-----BEGIN RSA PRIVATE KEY-----\n";
+    private static final String PRI_TAIL = "\n-----END RSA PRIVATE KEY-----";
     private static final String PUB_PRE = "-----BEGIN PUBLIC KEY-----\n";
     private static final String PUB_TAIL = "\n-----END PUBLIC KEY-----";
 
@@ -35,7 +35,7 @@ public class SignUtil {
      *
      * @param params
      * @param privateKey
-     * @return
+     * @return String
      */
     public static String buildSign(Map<String, Object> params, String privateKey) {
         TreeMap<String, String> treeMap = parseParams(params);
