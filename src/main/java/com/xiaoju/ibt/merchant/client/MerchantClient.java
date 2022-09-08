@@ -17,10 +17,6 @@ import static com.xiaoju.ibt.merchant.constants.Constants.*;
 import static com.xiaoju.ibt.merchant.constants.GatewayConstants.CONNECT_TIME_OUT;
 import static com.xiaoju.ibt.merchant.constants.GatewayConstants.READ_TIME_OUT;
 
-/**
- * @Author: xingrufei
- * @CreateTime: 2022-08-17
- */
 public class MerchantClient {
 
     private final String appId;
@@ -260,7 +256,7 @@ public class MerchantClient {
      */
     public ResponseInfo closeTrade(PayParameter payParameter) {
 
-        checkParam(payParameter);
+        checkMerchantOrderId(payParameter);
 
         String url = domain + CLOSE_TRADE_URL;
 

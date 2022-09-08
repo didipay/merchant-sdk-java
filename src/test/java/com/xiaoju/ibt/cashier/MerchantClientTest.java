@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class MerchantClientTest {
 
-    private static final String PRIVATE_KEY_PATH = "/home/runner/work/merchant-sdk-java/merchant-sdk-java/app_private_key.pem";
+    private static final String PRIVATE_KEY_PATH = "/home/runner/work/merchant-sdk-java/merchant-sdk-java/app_pkcs8.pem";
 
     @Test
     public void testPayQuery() {
