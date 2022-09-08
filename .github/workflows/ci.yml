@@ -15,6 +15,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Generate Key
+        run: openssl genrsa -out app_private_key.pem && openssl rsa -in app_private_key.pem -pubout -out app_public_key.pem && pwd
       - name: Build with Maven
         run: mvn clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
       - name: Upload coverage to codecov
