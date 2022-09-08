@@ -18,7 +18,7 @@ jobs:
       - name: Generate Key
         run: openssl genrsa -out app_private_key.pem && openssl rsa -in app_private_key.pem -pubout -out app_public_key.pem && pwd
       - name: Build with Maven
-        run: .\mvnw clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
+        run: mvn clean package -DskipTests=false -Dcheckstyle.skip=false -Dmaven.javadoc.skip=true
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
         with:
