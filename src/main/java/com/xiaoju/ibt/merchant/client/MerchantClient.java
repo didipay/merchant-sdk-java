@@ -223,6 +223,9 @@ public class MerchantClient {
         params.put(GatewayConstants.PAY_ORDER_ID, payParameter.getPayOrderId());
         params.put(GatewayConstants.MERCHANT_REFUND_ID, payParameter.getMerchantRefundId());
         params.put(GatewayConstants.AMOUNT, payParameter.getAmount());
+        if (!Objects.isNull(payParameter.getNotifyUrl())) {
+            params.put(GatewayConstants.NOTIFY_URL, payParameter.getNotifyUrl());
+        }
 
         return sendRequest(url, params);
     }
@@ -282,12 +285,16 @@ public class MerchantClient {
 
         checkMerchantOrderId(payParameter);
 
-        if (StringUtils.isEmpty(payParameter.getCurrency())) {
+        if (StringUtils.isBlank(payParameter.getCurrency())) {
             throw new PayException("currency is empty");
         }
 
-        if (StringUtils.isEmpty(payParameter.getTotalAmount())) {
+        if (StringUtils.isBlank(payParameter.getTotalAmount())) {
             throw new PayException("totalAmount is empty");
+        }
+
+        if(payParameter.getTotalAmount().contains(".")){
+            throw new PayException("totalAmount contains .");
         }
 
     }
@@ -296,7 +303,7 @@ public class MerchantClient {
 
         checkMerchantOrderId(payParameter);
 
-        if (StringUtils.isEmpty(payParameter.getPayOrderId())) {
+        if (StringUtils.isBlank(payParameter.getPayOrderId())) {
             throw new PayException("payOrderId is empty");
         }
 
@@ -306,16 +313,20 @@ public class MerchantClient {
 
         checkMerchantOrderId(payParameter);
 
-        if (StringUtils.isEmpty(payParameter.getPayOrderId())) {
+        if (StringUtils.isBlank(payParameter.getPayOrderId())) {
             throw new PayException("payOrderId is empty");
         }
 
-        if (StringUtils.isEmpty(payParameter.getMerchantRefundId())) {
+        if (StringUtils.isBlank(payParameter.getMerchantRefundId())) {
             throw new PayException("merchantRefundId is empty");
         }
 
-        if (StringUtils.isEmpty(payParameter.getAmount())) {
+        if (StringUtils.isBlank(payParameter.getAmount())) {
             throw new PayException("amount is empty");
+        }
+
+        if(payParameter.getAmount().contains(".")){
+            throw new PayException("amount contains .");
         }
 
     }
@@ -326,7 +337,7 @@ public class MerchantClient {
             throw new PayException("payInfo is null");
         }
 
-        if (StringUtils.isEmpty(payParameter.getMerchantOrderId())) {
+        if (StringUtils.isBlank(payParameter.getMerchantOrderId())) {
             throw new PayException("merchantOrderId is empty");
         }
 
@@ -334,15 +345,15 @@ public class MerchantClient {
 
     private void checkBasicInfo(String appId, String merchantId, String privateKey) {
 
-        if (StringUtils.isEmpty(appId)) {
+        if (StringUtils.isBlank(appId)) {
             throw new PayException("appId is empty");
         }
 
-        if (StringUtils.isEmpty(merchantId)) {
+        if (StringUtils.isBlank(merchantId)) {
             throw new PayException("merchantId is empty");
         }
 
-        if (StringUtils.isEmpty(privateKey)) {
+        if (StringUtils.isBlank(privateKey)) {
             throw new PayException("privateKey is empty");
         }
     }
