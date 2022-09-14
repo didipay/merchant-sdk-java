@@ -2,10 +2,6 @@ package com.xiaoju.ibt.merchant.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * @Author: xingrufei
- * @CreateTime: 2022-08-17
- */
 public class RefundData {
 
     @JsonProperty("merchant_refund_id")
@@ -36,5 +32,14 @@ public class RefundData {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "RefundData{" +
+                "merchantRefundId='" + merchantRefundId + '\'' +
+                ", refundsStatus='" + refundsStatus + '\'' +
+                ", amount='" + amount + '\'' +
+                '}';
     }
 }
