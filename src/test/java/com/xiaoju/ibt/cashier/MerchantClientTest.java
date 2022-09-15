@@ -52,6 +52,7 @@ public class MerchantClientTest {
         PayParameter payParameter = PayParameter.builder()
                 .merchantOrderId(merchantOrderId)
                 .payOrderId(payOrderId)
+                .notifyUrl("https://www.didiglobal.com")
                 .totalAmount("12000")
                 .currency("BRL")
                 .build();

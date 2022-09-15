@@ -297,6 +297,10 @@ public class MerchantClient {
             throw new PayException("totalAmount contains .");
         }
 
+        if (StringUtils.isBlank(payParameter.getNotifyUrl())) {
+            throw new PayException("notifyUrl is empty");
+        }
+
     }
 
     private void checkPayQuery(PayParameter payParameter) {
