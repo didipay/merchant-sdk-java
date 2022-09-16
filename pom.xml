@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.didipay</groupId>
     <artifactId>merchant-java-sdk</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.9</version>
     <name>merchant-java-sdk</name>
     <description>merchant-java-sdk</description>
     <url>https://github.com/didipay/merchant-sdk-java</url>
