@@ -173,6 +173,9 @@ public class MerchantClient {
         if (!Objects.isNull(payParameter.getGoodsDetail())) {
             params.put(GatewayConstants.GOODS_DETAIL, payParameter.getGoodsDetail());
         }
+        if (!Objects.isNull(payParameter.getExtraRiskInfo())) {
+            params.put(GatewayConstants.EXTRA_RISK_INFO, payParameter.getExtraRiskInfo());
+        }
         if (!Objects.isNull(payParameter.getPayer())) {
             params.put(GatewayConstants.PAYER, payParameter.getPayer());
         }
@@ -293,7 +296,7 @@ public class MerchantClient {
             throw new PayException("totalAmount is empty");
         }
 
-        if(payParameter.getTotalAmount().contains(".")){
+        if (payParameter.getTotalAmount().contains(".")) {
             throw new PayException("totalAmount contains .");
         }
 
@@ -329,7 +332,7 @@ public class MerchantClient {
             throw new PayException("amount is empty");
         }
 
-        if(payParameter.getAmount().contains(".")){
+        if (payParameter.getAmount().contains(".")) {
             throw new PayException("amount contains .");
         }
 

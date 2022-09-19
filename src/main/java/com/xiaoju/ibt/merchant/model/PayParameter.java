@@ -1,10 +1,6 @@
 package com.xiaoju.ibt.merchant.model;
 
 
-/**
- * @Author: xingrufei
- * @CreateTime: 2022-08-17
- */
 public class PayParameter {
 
     private String agencyId;
@@ -20,6 +16,7 @@ public class PayParameter {
     private String fromType;
     private String extKv;
     private String goodsDetail;
+    private String extraRiskInfo;
     private String payer;
     private String returnUrl;
 
@@ -127,6 +124,14 @@ public class PayParameter {
         this.goodsDetail = goodsDetail;
     }
 
+    public String getExtraRiskInfo() {
+        return extraRiskInfo;
+    }
+
+    public void setExtraRiskInfo(String extraRiskInfo) {
+        this.extraRiskInfo = extraRiskInfo;
+    }
+
     public String getPayer() {
         return payer;
     }
@@ -162,6 +167,7 @@ public class PayParameter {
         private String fromType;
         private String extKv;
         private String goodsDetail;
+        private String extraRiskInfo;
         private String payer;
         private String returnUrl;
 
@@ -230,6 +236,11 @@ public class PayParameter {
             return this;
         }
 
+        public Builder extraRiskInfo(String extraRiskInfo){
+            this.extraRiskInfo = extraRiskInfo;
+            return this;
+        }
+
         public Builder payer(String payer) {
             this.payer = payer;
             return this;
@@ -252,6 +263,7 @@ public class PayParameter {
             payParameter.setFromType(fromType);
             payParameter.setExtKv(extKv);
             payParameter.setGoodsDetail(goodsDetail);
+            payParameter.setExtraRiskInfo(extraRiskInfo);
             payParameter.setPayer(payer);
             payParameter.setTimeExpire(timeExpire);
             payParameter.setMerchantData(merchantData);

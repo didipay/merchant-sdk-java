@@ -21,6 +21,7 @@ public class GatewayConstants {
     public static final String FROM_TYPE = "from_type";
     public static final String EXT_KV = "ext_kv";
     public static final String GOODS_DETAIL = "goods_detail";
+    public static final String EXTRA_RISK_INFO = "extra_risk_info";
     public static final String PAYER = "payer";
     public static final String RETURN_URL = "return_url";
 
